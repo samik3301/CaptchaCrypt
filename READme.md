@@ -1,7 +1,7 @@
 ## CaptchaCrypt - Testing Strengths of Captchas
 ### With help of Deep Learning
 
-This PyTorch implementation makes use of R-CNN architecture with CTC loss function to predict and read the Captchas.
+This PyTorch implementation makes use of CRNN architecture with CTC loss function to predict and read the Captchas.
 
 **Edit the DATA_DIR (make it relative path), DEVICE (to cuda or whatever your system has) and WORKERS (again according to your system's specification)**
 
