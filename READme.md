@@ -3,13 +3,15 @@
 
 This PyTorch implementation makes use of CRNN architecture with CTC loss function to predict and read the Captchas.
 
+*First things first-Make a virtual environment for **Python 3.8.16** & activate that environment and do everything within that.*
+
 **Edit the DATA_DIR (make it relative path), DEVICE (to cuda or whatever your system has) and WORKERS (again according to your system's specification)**
 
 
 *Run this command in the terminal to download the dataset within the same repository directory.*
+For Linux and MacOS-
 
 `curl -LO https://github.com/AakashKumarNain/CaptchaCracker/raw/master/captcha_images_v2.zip`
-
 `unzip -qq captcha_images_v2.zip`
 
 *Run the following command.*
