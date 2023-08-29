@@ -106,12 +106,13 @@ def run_training():
         for vp in valid_preds:
             current_preds = decode_predictions(vp,label_encoder)
             valid_cap_preds.extend(current_preds)
-        pprint(list(zip(test_orig_targets,valid_cap_preds))[6:11])
+        pprint(list(zip(test_orig_targets,valid_cap_preds))[6:11]) #to test change the list also 
         print(f"Epoch: {epoch}, train_loss={train_loss}, valid_loss={valid_loss}")  
     
-    PATH = r'/Users/samik/Desktop/Programming/CaptchaCrypt/src/model_save/model.pth'
+    PATH = r'/Users/samik/Desktop/Programming/CaptchaCrypt/src/model_save/model.pth' #change this for your device path
     #print(os.path.isfile(PATH)) 
-    torch.save(model.cm, PATH) 
+    torch.save(model.cm, PATH)  #should work lmao ded 
+    #this saves the complete model 
 
 if __name__ == "__main__":
     run_training()
