@@ -5,7 +5,7 @@ This PyTorch implementation makes use of CRNN architecture with CTC loss functio
 
 *First things first-Make a virtual environment for **Python 3.8.16** & activate that environment and do everything within that.*
 
-**Edit the DATA_DIR (make it relative path), DEVICE (to cuda or whatever your system has) and WORKERS (again according to your system's specification)**
+**Edit the DATA_DIR (make it relative path), DEVICE (to cuda or whatever your system has) and WORKERS (again according to your system's specification)(not needed really)**
 
 
 *Run this command in the terminal to download the dataset within the same repository directory.*
@@ -25,10 +25,11 @@ Changes and progress pending for upcoming commits-
 - Making changes to `decode_predictions()` function in the model to make our output more presentable
 - Optimize using the mentioned comments within code and testing stuff - hyperparameter tuning, LSTM instead of GRU, learning rate, Optimizers, Batch Size, Convolutional Layers etc
 - Debugging if any errors
+- Change the image height and wdith to fix the feature length after permute from 75 -> 20 
 
 
 ### How to run the model-
 Run the `train.py` script for model training.
 
-*Possible errors- model not getting saved or getting a pickle TypeError after training*
+*Possible errors- model not getting saved or getting a pickle TypeError after training* **[FIXED]**
 
