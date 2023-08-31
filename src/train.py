@@ -38,7 +38,7 @@ def decode_predictions(preds,encoder):
 def run_training():
     image_files = glob.glob(os.path.join(config.DATA_DIR, "*.png"))  #scanning through all the files within a folder
     #/../..abcde.png -> [['a','b','c','d','e']]
-    targets_org = [x.split("/")[-1][:-4] for x in image_files]
+    targets_org = [x.split("\\")[-1][:-4] for x in image_files]
     #abcde - > [a,b,c,d,e]
     targets = [[c for c in x] for x in targets_org]
     targets_flat = [c for clist in targets for c in clist]  #flattening the list
@@ -75,7 +75,6 @@ def run_training():
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
         batch_size = config.BATCH_SIZE,
-        num_workers=  config.NUM_WORKERS,
         shuffle = True
     )
 
@@ -88,12 +87,11 @@ def run_training():
     test_loader = torch.utils.data.DataLoader(
         test_dataset,
         batch_size = config.BATCH_SIZE,
-        num_workers=  config.NUM_WORKERS,
         shuffle = False
     )
 
     model = CaptchaModel(num_chars=len(label_encoder.classes_))
-    model.to(config.DEVICE)
+    model.to(torch.device(config.DEVICE))
 
     optimizer = torch.optim.Adam(model.parameters(), lr = 3e-4)
     scheduler =  torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -109,9 +107,9 @@ def run_training():
         pprint(list(zip(test_orig_targets,valid_cap_preds))[6:11]) #to test change the list also 
         print(f"Epoch: {epoch}, train_loss={train_loss}, valid_loss={valid_loss}")  
     
-    PATH = r'/Users/samik/Desktop/Programming/CaptchaCrypt/src/model_save/model.pth' #change this for your device path
     #print(os.path.isfile(PATH)) 
-    torch.save(model.cm, PATH)  #should work lmao ded 
+    # torch.save(model, config.MODEL_PATH)  #should work lmao ded
+    torch.save(model.state_dict(), config.MODEL_PATH) # From here one save model.state_dict NIBA not the entire model object
     #this saves the complete model 
 
 if __name__ == "__main__":
