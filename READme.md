@@ -42,5 +42,10 @@ Feed those coordinates into the `dataset_maker.py` to generate a dataset of VTOP
 
 Run the `load_model.py` to load the saved weights (previous model)
 
+### How to get the Captcha box coordinates (bounding box) from any website
+We use a YOLOv8 Object detection model to train on a custom dataset of different websites having captchas and manually and precisely annotating the captchas in those. Then for testing, we take a screenshot of any website -> pass that screenshot as input to our trained model and it should label and detect the captcha present in it :D
+
+We get the coordinates from that bounding box using OpenCV help and feed those into our script to download our testing captcha image that we feed in our CRNN model to predict the label :D
+
 *Possible errors- model not getting saved or getting a pickle TypeError after training* **[FIXED]**
 
