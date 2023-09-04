@@ -13,12 +13,12 @@ import random
 
 #bounding box of vtop captcha
 
-#change the coordinates for ur device resolution using the cursor_coordinates.py 
-x1, y1 = 612, 372  # Top-left corner 
-x2, y2 = 803, 407  # Bottom-right corner 
+# DONE : change the coordinates for ur device resolution using the cursor_coordinates.py
+x1, y1 = 810, 430  # Top-left corner 
+x2, y2 = 1070, 480  # Bottom-right corner 
 
 #niga do ur magic and turn this into a relative path
-download_dir = "/Users/samik/Desktop/Programming/CaptchaCrypt/downloaded_images" # Directory to save downloaded images
+download_dir = "./vtop_captchas" # Directory to save downloaded images
 #os.makedirs(download_dir, exist_ok=True)
 
 #loading time for script - good practice
@@ -30,7 +30,7 @@ for i in range(10):
 x = 2 #can specify how many images we need for our dataset
 i = 0 
 
-while x>0:
+while x > 0:
     try:
         #timestamp = time.strftime('%Y-%m-%d_%H-%M-%S') #hopefully should work
         img_name = f'screenshot_{i+1}.png'
@@ -39,13 +39,13 @@ while x>0:
         # Capture the image from the specified coordinates
         screenshot.save(os.path.join(download_dir, img_name))
         # Reload the webpage 
-        pyautogui.hotkey("command", "r")  # Refresh the page (coded for mac-> change command with ctrl for windows)
+        pyautogui.hotkey("ctrl", "r")  # Refresh the page (coded for mac-> change command with ctrl for windows)
         time.sleep(5)  # Wait for the page to load - 5s is enough ig unless really bad internet
 
         print(f'Screenshot saved to: {os.path.join(download_dir, img_name)}')
 
         # Wait for some time before reloading again
-        time.sleep(random.randint(5,10))  # keeping it random so vtop doesn't flag us or something
+        time.sleep(random.randint(5, 10))  # keeping it random so vtop doesn't flag us or something
         x-=1
 
     except KeyboardInterrupt:
