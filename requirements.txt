@@ -8,3 +8,4 @@ pprint
 tqdm
 matplotlib
 pyautogui
+ultralytics
