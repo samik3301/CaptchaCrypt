@@ -24,8 +24,8 @@ class CaptchaModel(nn.Module):
         self.max_pool_2 = nn.MaxPool2d(
             kernel_size=(2,2)
         )
-        #adding another layer here 
-        self.linear_1 = nn.Linear(1152,64) #input size becomes 1152 and number of features = 64
+        # 768 is defined by the output of the conv + maxpool pipeline on 260 X 50 X 3 img
+        self.linear_1 = nn.Linear(768 ,64) 
         self.drop_1 = nn.Dropout(0.2) #adding a dropout
 
         #can add either LSTM or GRU model
