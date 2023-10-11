@@ -28,7 +28,7 @@ class Classification:
         targets = self.targets[item] #setting the targets
         if self.resize!=None: #in case its not resized -> this will resize 
             image= image.resize((self.resize[1],self.resize[0]),resample=Image.BILINEAR)
-            #since PIL format saves the image as height first then width so resizing accordingly 
+            #since PIL format saves the image as width first then height so resizing accordingly 
             #and also using resampling method of PIL as BILINEAR -> can change that later to see performance improvements if any
         image = np.array(image) #converting the image into np array finally  
         augmented = self.aug(image= image)

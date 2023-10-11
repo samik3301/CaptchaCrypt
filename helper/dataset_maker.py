@@ -27,10 +27,10 @@ for i in range(10):
     time.sleep(1)
 
 
-x = 2 #can specify how many images we need for our dataset
+num_images = 500 #can specify how many images we need for our dataset
 i = 0 
 
-while x > 0:
+while num_images > 0:
     try:
         #timestamp = time.strftime('%Y-%m-%d_%H-%M-%S') #hopefully should work
         img_name = f'screenshot_{i+1}.png'
@@ -45,8 +45,8 @@ while x > 0:
         print(f'Screenshot saved to: {os.path.join(download_dir, img_name)}')
 
         # Wait for some time before reloading again
-        time.sleep(random.randint(5, 10))  # keeping it random so vtop doesn't flag us or something
-        x-=1
+        time.sleep(random.randint(1, 5))  # keeping it random so vtop doesn't flag us or something
+        num_images -= 1
 
     except KeyboardInterrupt:
       break
