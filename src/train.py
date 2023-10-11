@@ -36,7 +36,8 @@ def decode_predictions(preds,encoder):
 
 
 def run_training():
-    image_files = glob.glob(os.path.join(config.DATA_DIR, "*.png"))  #scanning through all the files within a folder
+    # image_files = glob.glob(config.DATA_DIR + "*.png")  #scanning through all the files within a folder
+    image_files = glob.glob("D:/Python/CaptchaCrypt/data/vtop_captchas/*")  #scanning through all the files within a folder
     #/../..abcde.png -> [['a','b','c','d','e']]
     targets_org = [x.split("\\")[-1][:-4] for x in image_files]
     #abcde - > [a,b,c,d,e]
@@ -47,7 +48,7 @@ def run_training():
     label_encoder = preprocessing.LabelEncoder()
     label_encoder.fit(targets_flat)
 
-    target_encoded =[label_encoder.transform(x) for x in targets]
+    target_encoded = [label_encoder.transform(x) for x in targets]
     target_encoded = np.array(target_encoded)+1
     #print(target_encoded)
     #print("\n")
@@ -58,7 +59,7 @@ def run_training():
 
 
     #NOW SPLITTING THE DATA
-    train_images, test_images, train_targets, test_targets, train_orig_targets, test_orig_targets = model_selection.train_test_split(
+    train_images, val_images, train_targets, val_targets, train_orig_targets, test_orig_targets = model_selection.train_test_split(
         image_files,
         target_encoded,
         targets_org,
@@ -78,14 +79,14 @@ def run_training():
         shuffle = True
     )
 
-    test_dataset = dataset.Classification(
-        image_paths = test_images, 
-        targets = test_targets, 
+    val_dataset = dataset.Classification(
+        image_paths = val_images, 
+        targets = val_targets, 
         resize=(config.IMAGE_HEIGHT,config.IMAGE_WIDTH)
     )
 
-    test_loader = torch.utils.data.DataLoader(
-        test_dataset,
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset,
         batch_size = config.BATCH_SIZE,
         shuffle = False
     )
@@ -99,18 +100,15 @@ def run_training():
     )
     for epoch in range(config.EPOCHS):
         train_loss = engine.train_fn(model, train_loader, optimizer)
-        valid_preds,valid_loss  = engine.eval_fn(model, test_loader)
+        valid_preds,valid_loss  = engine.eval_fn(model, val_loader)
         valid_cap_preds  = []
         for vp in valid_preds:
             current_preds = decode_predictions(vp,label_encoder)
             valid_cap_preds.extend(current_preds)
-        pprint(list(zip(test_orig_targets,valid_cap_preds))[6:11]) #to test change the list also 
+        pprint(list(zip(test_orig_targets, valid_cap_preds))[6:11]) #to test change the list also 
         print(f"Epoch: {epoch}, train_loss={train_loss}, valid_loss={valid_loss}")  
-    
-    #print(os.path.isfile(PATH)) 
-    # torch.save(model, config.MODEL_PATH)  #should work lmao ded
-    torch.save(model.state_dict(), config.MODEL_PATH) # From here one save model.state_dict NIBA not the entire model object
-    #this saves the complete model 
+
+    torch.save(model.state_dict(), 'D:/Python/CaptchaCrypt/model_saves/vtop_model.bin') # From here one save model.state_dict NIBA not the entire model object
 
 if __name__ == "__main__":
     run_training()
