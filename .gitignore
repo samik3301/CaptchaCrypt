@@ -2,9 +2,8 @@ testing_pyscreeze.py
 testing_pyautogui.py
 captcha_images_v2/
 downloaded_images/
-src/__pycache__/
 
-src/*
-data/vtop_captchas/*
-data/indiagov_captchas/*
-!data/indiagov_captchas/_save*.png
+# MedSeller's
+src/__pycache__/
+data/*
+model_saves/*
