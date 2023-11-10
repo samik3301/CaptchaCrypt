@@ -22,25 +22,25 @@ download_dir = "./vtop_captchas" # Directory to save downloaded images
 #os.makedirs(download_dir, exist_ok=True)
 
 #loading time for script - good practice
-for i in range(10):
-    print(f"The script is starting in {i+1} seconds.")
+for i in range(10, 0, -1):
+    print(f"The script is starting in {i} seconds.")
     time.sleep(1)
 
 
-num_images = 500 #can specify how many images we need for our dataset
+num_images = 800 #can specify how many images we need for our dataset
 i = 0 
 
 while num_images > 0:
     try:
         #timestamp = time.strftime('%Y-%m-%d_%H-%M-%S') #hopefully should work
-        img_name = f'screenshot_{i+1}.png'
-        i+=1
+        img_name = f'save_{i+1}.png'
+        i += 1
         screenshot = pyautogui.screenshot(region=(x1, y1, x2 - x1, y2 - y1)) #top left, width,height for the rectangle box
         # Capture the image from the specified coordinates
         screenshot.save(os.path.join(download_dir, img_name))
         # Reload the webpage 
         pyautogui.hotkey("ctrl", "r")  # Refresh the page (coded for mac-> change command with ctrl for windows)
-        time.sleep(5)  # Wait for the page to load - 5s is enough ig unless really bad internet
+        time.sleep(4)  # Wait for the page to load - 5s is enough ig unless really bad internet
 
         print(f'Screenshot saved to: {os.path.join(download_dir, img_name)}')
 
