@@ -1,7 +1,8 @@
-DATA_DIR = '../data/vtop_captchas/'
-MODEL_PATH = '../model_saves/vtop_model.bin'
-BATCH_SIZE = 64  #try and change to 16 later and see  
+DATA_DIR = './../data/vtop_captchas/'
+MODEL_PATH = './../model_saves/vtop_model_new.bin'
+PLOTS_SAVE_PATH = "./../plots/"
+BATCH_SIZE = 64
+IMAGE_HEIGHT = 50 # VTOP
 IMAGE_WIDTH = 260
-IMAGE_HEIGHT = 50
-EPOCHS = 200 #keeping it low for initial training -> will increase later
+EPOCHS = 300
 DEVICE = "cuda:0"

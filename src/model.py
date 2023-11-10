@@ -1,107 +1,115 @@
-import torch 
-from torch import nn 
-from torch.nn import functional as F
+import torch
 
-
-class CaptchaModel(nn.Module):
-    def __init__(self, num_chars):
-        super(CaptchaModel,self).__init__()
-        self.conv_1 = nn.Conv2d(
-            3,
-            128,
-            kernel_size=(3,3),
+class CaptchaModel(torch.nn.Module):
+    def __init__(self, vocabulary_size):
+        super(CaptchaModel, self).__init__()
+        self.conv1 = torch.nn.Conv2d(
+            1,
+            32,
+            kernel_size = (3, 3),
             padding = (1,1)
         )
-        self.max_pool_1 = nn.MaxPool2d(
-            kernel_size=(2,2)
-        )
-        self.conv_2 = nn.Conv2d(
-            128,
+        self.batchnorm1 = torch.nn.BatchNorm2d(32)
+        # self.drop1 = torch.nn.Dropout(0.1)
+        self.max_pool1 = torch.nn.MaxPool2d(kernel_size = (2, 2))
+
+        self.conv2 = torch.nn.Conv2d(
+            32,
             64,
-            kernel_size=(3,3),
+            kernel_size = (3, 3),
+            padding = (1, 1)
+        )
+        self.batchnorm2 = torch.nn.BatchNorm2d(64)
+        # self.drop2 = torch.nn.Dropout(0.1)
+        self.max_pool2 = torch.nn.MaxPool2d(kernel_size = (2, 2))
+
+        ''' Extra stuff that made loss worse
+        self.conv3 = torch.nn.Conv2d(
+            64,
+            128,
+            kernel_size = (3, 3),
             padding = (1,1)
         )
-        self.max_pool_2 = nn.MaxPool2d(
-            kernel_size=(2,2)
+        self.batchnorm3 = torch.nn.BatchNorm2d(128)
+        self.drop3 = torch.nn.Dropout(0.1)
+
+        self.conv4 = torch.nn.Conv2d(
+            128,
+            256,
+            kernel_size = (3, 3),
+            padding = (1,1)
         )
-        # 768 is defined by the output of the conv + maxpool pipeline on 260 X 50 X 3 img
-        self.linear_1 = nn.Linear(768 ,64) 
-        self.drop_1 = nn.Dropout(0.2) #adding a dropout
-
-        #can add either LSTM or GRU model
-        self.gru = nn.GRU(64,32, bidirectional = True,
-            num_layers = 2,
-            dropout = 0.25
-        )
-
-        self.output = nn.Linear(64, num_chars+1)
+        self.batchnorm4 = torch.nn.BatchNorm2d(256)
+        self.drop4 = torch.nn.Dropout(0.1)
+        '''
 
 
+        self.dense1 = torch.nn.Linear(64 * 12, 100)
+        self.dropout = torch.nn.Dropout(0.3)
+        self.gru = torch.nn.GRU(100, 50, num_layers = 2, bidirectional = True, dropout = 0.25)
 
-    def forward(self,images,targets=None):
-        #giving us some batch size, channels, height and width 
-        bs, c, h, w = images.size()
-        #print(bs,c,h,w)
-        x = F.relu(self.conv_1(images))
-        #print(x.size()) #first convolution , the size remainds the same
-        x = self.max_pool_1(x)
-        #print(x.size()) #reduces the size in hald
-        x = F.relu(self.conv_2(x))
-        #print(x.size()) #2nd convolution the size remains the same
-        x = self.max_pool_2(x)
-        #print(x.size()) #2nd max pooling , the size reduces in half
-        # 1 64 18 75 - bs, num of filter, height, width
-        # 1 75 64 18
-        x = x.permute(0, 3, 1, 2)
-        #print(x.size())
-        x=x.view(bs,x.size(1),-1) #-1 indicates multiplying other parameters and keeping the size same
-        #print(x.size()) #outputs torch.Size([1, 75, 1152]) so batch size is 1, number of features are 75 and the rest is 1152 
-        x = self.linear_1(x)
-        x = self.drop_1(x)
-        #print(x.size()) #outputs torch.Size([1, 75, 64])
-        x,_ = self.gru(x)
-        #print(x.size()) #returns torch.Size([1, 75, 64]) returns 64 because it is bidirectional 
+        self.output = torch.nn.Linear(100, vocabulary_size + 1)
+        
+    def forward(self, x):
+        x = self.conv1(x)
+        x = torch.nn.functional.relu(x)
+        x = self.batchnorm1(x)
+        # x = self.drop1(x)
+        x = self.max_pool1(x)
+
+        x = self.conv2(x)
+        x = torch.nn.functional.relu(x)
+        x = self.batchnorm2(x)
+        # x = self.drop2(x)
+        x = self.max_pool2(x)
+        
+        '''
+        x = self.conv3(x)
+        x = torch.nn.functional.relu(x)
+        x = self.batchnorm3(x)
+        x = self.drop3(x)
+
+        x = self.conv4(x)
+        x = torch.nn.functional.relu(x)
+        x = self.batchnorm4(x)
+        x = self.drop4(x)
+        '''
+        
+        # bs x 64 x 65 x 12
+        # print(x.size())
+        x = x.permute(0, 2, 1, 3)
+        x = x.reshape(x.size(0), x.size(1), -1)
+        # print(x.size())
+        # bs x 65 x 780
+        x = self.dense1(x)
+        x = self.dropout(x)
+        x, _ = self.gru(x)
+
         x = self.output(x)
-        #print(x.size()) #returns torch.Size([1, 75, 20]) 20 as 19 unique classes/characters
-        #basically having 75 different timestamps and at each timestamp its returning us a vector of size 20
+        return x
 
-        #now have to return the loss if we have targets
-        #here using CTC loss function because it makes sense when it comes to connections and sequences - basically our use case
-
-        x = x.permute(1,0,2)  #very important for formatting of the CTC Loss function as the t
-        #print(x.size())
-
-        if targets is not None:
-            log_softmax_values = F.log_softmax(x, 2) #implemented in the pytorch using log_softmax 
-            input_lengths = torch.full(
-                size=(bs, ),
-                fill_value=log_softmax_values.size(0),
-                dtype= torch.int32
-            )
-            #print(input_lengths)  # gives torch[75]
-            target_lengths = torch.full(
-                size=(bs, ),
-                fill_value=targets.size(1),
-                dtype= torch.int32
-            )
-            #print(target_lengths) # torch[5] output can have different sizes but input will have only 1 size tensor of 75 features
-            loss = nn.CTCLoss(blank=0)(
-                log_softmax_values,
-                targets,
-                input_lengths,
-                target_lengths
-            )
-
-            return x,loss
-        return x, None
-
-
-if __name__ == "__main__":
-    cm = CaptchaModel(19)
-    img = torch.rand(1,3,75,300)
-    target = torch.randint(1,20,(1,5))
-    #target = torch.randint(1,20,(5,5))
-    x, loss = cm(img,target)
-
+class CaptchaLoss(torch.nn.Module):
+    def __init__(self):
+        super(CaptchaLoss, self).__init__()
     
-
+    def forward(self, preds :torch.Tensor, targets :torch.Tensor):
+        batch_size = preds.size(0)
+        x = preds.permute(1, 0, 2) # Output of (bs x 65 x vocabsize) from the model is arranged as (65 x bs x vocabsize) for alignment for ctc loss calculation
+        x = torch.nn.functional.log_softmax(x, 2) # logsoftmax across the vocabsize dim
+        pred_lengths = torch.full(
+            size=(batch_size, ),
+            fill_value = x.size(0), # 65
+            dtype= torch.int32
+        )
+        target_lengths = torch.full(
+            size=(batch_size, ),
+            fill_value = targets.size(1), # 6
+            dtype= torch.int32
+        )
+        loss = torch.nn.CTCLoss(blank=0)(
+            x,
+            targets,
+            pred_lengths,
+            target_lengths
+        )
+        return loss

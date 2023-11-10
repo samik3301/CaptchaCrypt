@@ -1,35 +1,35 @@
-from tqdm import tqdm
 import torch
+import numpy as np
+from tqdm import tqdm
 
-import config
 
-def train_fn(model, data_loader, optimizer):
+def train_epoch(model, data_loader, loss_func, optimizer, device):
     model.train()
-    fin_loss =0
-    tk = tqdm(data_loader,total = len(data_loader))
-    for data in tk:
-        for k,v in data.items():
-            data[k] = v.to(config.DEVICE)
+    loss_graph = []
+    for img_batch, target_batch in tqdm(data_loader):
+        img_batch  = img_batch.to(device)
+        target_batch = target_batch.to(device)
+        
         optimizer.zero_grad()
-        _,loss = model(**data)
+        preds = model(img_batch)
+        loss = loss_func(preds, target_batch)
+        loss_graph.append(loss.item())
+
         loss.backward()
         optimizer.step()
-        fin_loss += loss.item()
-    return fin_loss / len(data_loader)
+    return np.mean(loss_graph)
 
-def eval_fn(model, data_loader):
+def evaluate(model, data_loader, loss_func, device):
     model.eval()
-    fin_loss =0
-    fin_preds = []
+    loss_graph = []
+    batch_preds = []
     with torch.no_grad():
-        tk = tqdm(data_loader,total = len(data_loader))
-        for data in tk:
-            for k,v in data.items():
-                data[k] = v.to(config.DEVICE)
-
-
-            batch_preds, loss = model(**data)
+        for img_batch, target_batch in tqdm(data_loader):
+            img_batch  = img_batch.to(device)
+            target_batch = target_batch.to(device)
             
-            fin_loss += loss.item()
-            fin_preds.append(batch_preds)
-        return fin_preds, fin_loss / len(data_loader)
+            preds = model(img_batch)
+            loss = loss_func(preds, target_batch)
+            loss_graph.append(loss.item())
+            batch_preds.append(preds)
+    return batch_preds, np.mean(loss_graph)
