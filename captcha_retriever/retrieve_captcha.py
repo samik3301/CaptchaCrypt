@@ -24,4 +24,3 @@ def get_captcha(url :str) -> Image.Image:
     img = Image.open(urllib.request.urlopen(img_link))
     return img
 
-# print("Captcha saved successfully")
