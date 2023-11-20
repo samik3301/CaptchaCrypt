@@ -7,10 +7,10 @@ from sklearn import model_selection
 from matplotlib import pyplot as plt
 from pprint import pprint
 
-import _config
-from _model import CaptchaLoss, CaptchaModel
-from _engine import train_epoch, evaluate
-from _dataset import DataWrapper
+import config
+from model import CaptchaLoss, CaptchaModel
+from engine import train_epoch, evaluate
+from dataset import DataWrapper
 
 def decode_predictions(preds, encoder):
     # pred - (bs X timesteps X vocabsize) -> (bs X time_steps) -> (bs X 6)
@@ -46,14 +46,14 @@ def plot_lossgraph(train_values, val_values, n_epochs, modelname):
     # Display the plot
     plt.legend(loc='best')
     
-    plt.savefig(_config.PLOTS_SAVE_PATH + modelname + "_loss.jpg")
+    plt.savefig(config.PLOTS_SAVE_PATH + modelname + "_loss.jpg")
 
 def train(model, train_loader, val_loader, loss_func, optimizer, scheduler, label_encoder, actual_captchas):
 
-    dev = torch.device(_config.DEVICE if torch.cuda.is_available() else "cpu")
+    dev = torch.device(config.DEVICE if torch.cuda.is_available() else "cpu")
     train_losses = []
     val_losses = []
-    for epoch in range(_config.EPOCHS):
+    for epoch in range(config.EPOCHS):
         train_loss = train_epoch(model, train_loader, loss_func, optimizer, dev)
         val_preds, val_loss  = evaluate(model, val_loader, loss_func, dev)
         scheduler.step(val_loss)
@@ -68,11 +68,11 @@ def train(model, train_loader, val_loader, loss_func, optimizer, scheduler, labe
         train_losses.append(train_loss)
         val_losses.append(val_loss)
     
-    plot_lossgraph(np.array(train_losses), np.array(val_losses), n_epochs=_config.EPOCHS, modelname="vtopnew")
+    plot_lossgraph(np.array(train_losses), np.array(val_losses), n_epochs=config.EPOCHS, modelname="vtopnew")
 
 if __name__ == "__main__":
     # Loading Labels
-    image_files = glob.glob(_config.DATA_DIR + "*.png")
+    image_files = glob.glob(config.DATA_DIR + "*.png")
     if len(image_files) == 0:
         print("ERROR reading images at path, Check path ..")
         exit(0)
@@ -96,21 +96,21 @@ if __name__ == "__main__":
         test_size=0.1,
         random_state= 42
     )
-    train_dataset = DataWrapper(paths = train_images, labels = train_targets, resize=(_config.IMAGE_HEIGHT,_config.IMAGE_WIDTH))
-    train_loader  = DataLoader(train_dataset, _config.BATCH_SIZE, shuffle=False)
-    val_dataset   = DataWrapper(paths = val_images, labels = val_targets, resize=(_config.IMAGE_HEIGHT,_config.IMAGE_WIDTH))
-    val_loader    = DataLoader(val_dataset, _config.BATCH_SIZE, shuffle=False)
+    train_dataset = DataWrapper(paths = train_images, labels = train_targets, resize=(config.IMAGE_HEIGHT,config.IMAGE_WIDTH))
+    train_loader  = DataLoader(train_dataset, config.BATCH_SIZE, shuffle=False)
+    val_dataset   = DataWrapper(paths = val_images, labels = val_targets, resize=(config.IMAGE_HEIGHT,config.IMAGE_WIDTH))
+    val_loader    = DataLoader(val_dataset, config.BATCH_SIZE, shuffle=False)
 
     # Model, loss func, opt
     model = CaptchaModel(vocabulary_size = len(label_encoder.classes_))
-    model.to(torch.device(_config.DEVICE if torch.cuda.is_available() else "cpu"))
+    model.to(torch.device(config.DEVICE if torch.cuda.is_available() else "cpu"))
     loss = CaptchaLoss()
     optimizer = torch.optim.Adam(model.parameters())
     scheduler =  torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, factor=0.8, patience=5, verbose=True
+        optimizer, factor=0.9, patience=15, verbose=True
     )
     # Train and save
     print("Initiate Training ...\n\n")
     train(model, train_loader, val_loader, loss, optimizer, scheduler, label_encoder, val_original_targets)
-    torch.save(model.state_dict(), _config.MODEL_PATH)
+    torch.save(model.state_dict(), config.MODEL_PATH)
     
