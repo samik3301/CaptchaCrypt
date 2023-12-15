@@ -1,0 +1,5 @@
+tensorflow-macos
+keras
+PIL
+requests
+pyautogui
