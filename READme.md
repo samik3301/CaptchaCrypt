@@ -22,3 +22,7 @@ Run the `keras_implementation.ipynb` script, cell by cell. Number of iterations 
 
 ### Checkpoint-
 Can integrate this with an interface in future or make it into an extension that can be used like a Google Chrome extension.
+
+### Detailed Report - 
+For an in depth report about the project, kindly refer the link below.
+[Report][https://docs.google.com/document/d/1uQYvcg5S8hhhf1-egFX8zbuXI53lKWaFslWqsLyvsY4/edit?usp=sharing]
