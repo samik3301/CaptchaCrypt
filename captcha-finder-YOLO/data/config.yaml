@@ -1,8 +1,0 @@
-
-path: /Users/samik/Desktop/Programming/CaptchaCrypt/captcha-finder-YOLO/data  # dataset root dir- (relative path not working for me idk)
-train: images/train  # train images (relative to 'path')
-val: images/train  # val images (relative to 'path')
-
-# Classes
-names:
-  0: captcha
